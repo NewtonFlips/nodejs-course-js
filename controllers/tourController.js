@@ -1,5 +1,6 @@
 const Tour = require('./../models/tourModel');
 const APIFeatures = require('./../utils/apiFeatures');
+const catchAsync = require('./../utils/catchAsync');
 
 // Alias Route (Route to provide readymade filtering and other things instead of using query)
 
@@ -11,8 +12,8 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async (req, res) => {
-  try {
+exports.getAllTours = catchAsync(
+  async (req, res, next) => {
     const features = new APIFeatures(
       Tour.find(),
       req.query
@@ -31,18 +32,11 @@ exports.getAllTours = async (req, res) => {
         tours,
       },
     });
-  } catch (error) {
-    res.status(404).json({
-      status: 'fail',
-      message:
-        'The resource you are looking for does not exist.',
-      err: error,
-    });
   }
-};
+);
 
-exports.getTour = async (req, res) => {
-  try {
+exports.getTour = catchAsync(
+  async (req, res, next) => {
     const tour = await Tour.findById(req.params.id);
     res.status(200).json({
       status: 'success',
@@ -50,18 +44,11 @@ exports.getTour = async (req, res) => {
         tour,
       },
     });
-  } catch (error) {
-    res.status(401).json({
-      status: 'fail',
-      message:
-        'The resource you are looking for does not exist.',
-      err: error,
-    });
   }
-};
+);
 
-exports.createTour = async (req, res) => {
-  try {
+exports.createTour = catchAsync(
+  async (req, res, next) => {
     const tour = await Tour.create(req.body);
     res.status(201).json({
       status: 'sucess',
@@ -69,17 +56,11 @@ exports.createTour = async (req, res) => {
         tour,
       },
     });
-  } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      message: 'Invalid data sent',
-      err: error,
-    });
   }
-};
+);
 
-exports.updateTour = async (req, res) => {
-  try {
+exports.updateTour = catchAsync(
+  async (req, res, next) => {
     const tour = await Tour.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -92,17 +73,11 @@ exports.updateTour = async (req, res) => {
         tour,
       },
     });
-  } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      message: 'Invalid data sent',
-      err: error,
-    });
   }
-};
+);
 
-exports.deleteTour = async (req, res) => {
-  try {
+exports.deleteTour = catchAsync(
+  async (req, res, next) => {
     const tour = await Tour.findByIdAndDelete(
       req.params.id
     );
@@ -110,19 +85,12 @@ exports.deleteTour = async (req, res) => {
       status: 'success',
       data: null,
     });
-  } catch (error) {
-    res.status(401).json({
-      status: 'fail',
-      message:
-        'The resource you are looking for does not exist.',
-      err: error,
-    });
   }
-};
+);
 
 // AGGREGATION PIPELINE (grouping results)
-exports.getTourStats = async (req, res) => {
-  try {
+exports.getTourStats = catchAsync(
+  async (req, res, next) => {
     const stats = await Tour.aggregate([
       {
         $match: { ratingsAverage: { $gte: 4.5 } },
@@ -153,18 +121,11 @@ exports.getTourStats = async (req, res) => {
         stats,
       },
     });
-  } catch (error) {
-    res.status(401).json({
-      status: 'fail',
-      message:
-        'The resource you are looking for does not exist.',
-      err: error,
-    });
   }
-};
+);
 
-exports.getMonthlyPlan = async (req, res) => {
-  try {
+exports.getMonthlyPlan = catchAsync(
+  async (req, res, next) => {
     const year = req.params.year * 1;
     const plan = await Tour.aggregate([
       {
@@ -205,12 +166,5 @@ exports.getMonthlyPlan = async (req, res) => {
         plan,
       },
     });
-  } catch (error) {
-    res.status(401).json({
-      status: 'fail',
-      message:
-        'The resource you are looking for does not exist.',
-      err: error,
-    });
   }
-};
+);
